@@ -16,7 +16,7 @@ namespace WebAPI.Controllers
 {
     public class ProductController : ApiController
     {
-        private IEnumerable<Product> products;
+        private List<Product> products;
         protected override void Initialize(HttpControllerContext controllerContext)
         {
             base.Initialize(controllerContext);
@@ -35,26 +35,23 @@ namespace WebAPI.Controllers
 
         private void GetProducts()
         {
-            XmlTextReader reader = new XmlTextReader(HttpContext.Current.Server.MapPath("~/App_Data/Product.xml"));
-            XmlSerializer serializer = new XmlSerializer(typeof(List<Product>));
-            using (FileStream stream = File.OpenRead(HttpContext.Current.Server.MapPath("~/App_Data/Product.xml")))
+            XmlSerializer deserializer = new XmlSerializer(typeof(List<Product>), new XmlRootAttribute("Products"));
+            
+            //var doc = XDocument.Load(HttpContext.Current.Server.MapPath("~/App_Data/Product.xml"));
+            //products = (from r in doc.Root.Elements("Product")
+            //            select new Product()
+            //            {
+            //                Id = (int)r.Element("Id"),
+            //                Description = (string)r.Element("Description")
+            //            }).ToList();
+
+            using (var stream = new StreamReader(HttpContext.Current.Server.MapPath("~/App_Data/Product.xml")))
+            //var xmlString = XDocument.Load(HttpContext.Current.Server.MapPath("~/App_Data/Product.xml")).ToString();
+            //using (var stream = new StringReader(xmlString))
             {
-                products = (List<Product>)serializer.Deserialize(stream);
+                products = (List<Product>)deserializer.Deserialize(stream);
             }
-
-            //var productList = from c in XElement.Load(System.Web.Hosting.HostingEnvironment.MapPath("~/App_Data/Product.xml")).Elements("Products")
-            //           select c;
-            //List<Product> _productsList = new List<Product>();
-
-            //foreach (var item in productList)
-            //{
-            //    _productsList.Add(new Product() {
-            //        Id = int.Parse(item.Element("Id").Value),
-            //        Description = item.Element("Description").Value
-            //    });
-
-            //}
-            //products = _productsList;
+            
         }
     }
 }
